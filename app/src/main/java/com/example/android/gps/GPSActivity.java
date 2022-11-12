@@ -1,7 +1,6 @@
 package com.example.android.gps;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -12,6 +11,7 @@ import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.example.android.bluetoothlegatt.databinding.ActivityGpsBinding;
@@ -24,7 +24,7 @@ import com.google.android.gms.location.Priority;
 
 import java.util.List;
 
-public class GPSActivity extends Activity {
+public class GPSActivity extends AppCompatActivity {
     private static final int PERMISSION_FINE_LOCATION = 99;
     private ActivityGpsBinding binding;
 

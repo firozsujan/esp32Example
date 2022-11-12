@@ -23,7 +23,7 @@ import java.util.HashMap;
  */
 public class SampleGattAttributes {
     private static HashMap<String, String> attributes = new HashMap();
-    public static String UUID_ESP32 = "4fafc201-36e1-4688-b7f5-ea07361b26a8";
+    public static String UUID_ESP32 = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 
     static {
