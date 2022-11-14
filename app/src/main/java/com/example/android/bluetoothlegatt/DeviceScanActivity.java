@@ -32,6 +32,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,6 +49,7 @@ import androidx.core.view.MenuItemCompat;
 import com.example.android.gps.GPSActivity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -57,6 +59,8 @@ public class DeviceScanActivity extends ListActivity {
     private BluetoothAdapter mBluetoothAdapter;
     private boolean mScanning;
     private Handler mHandler;
+    List<BluetoothDevice> bluetoothDevices;
+
 
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
@@ -90,6 +94,7 @@ public class DeviceScanActivity extends ListActivity {
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
+        bluetoothDevices = new ArrayList<>();
     }
 
     @Override
@@ -120,7 +125,19 @@ public class DeviceScanActivity extends ListActivity {
                 scanLeDevice(false);
                 break;
             case R.id.menu_gps:
-                Intent intent = new Intent(DeviceScanActivity.this, GPSActivity.class);
+//                Intent intent = new Intent(DeviceScanActivity.this, GPSActivity.class);
+//                startActivity(intent);
+                final Intent intent = new Intent(this, DeviceControlActivity.class);
+                int index = 0;
+                for (BluetoothDevice device : bluetoothDevices) {
+                    String EXTRAS_DEVICE_NAME = DeviceControlActivity.EXTRAS_DEVICE_NAME+index;
+                    String EXTRAS_DEVICE_ADDRESS = DeviceControlActivity.EXTRAS_DEVICE_ADDRESS+index;
+                    intent.putExtra(EXTRAS_DEVICE_NAME, device.getName());
+                    intent.putExtra(EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                    index++;
+
+                }
+                intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_INDEX, index);
                 startActivity(intent);
                 break;
         }
@@ -166,10 +183,7 @@ public class DeviceScanActivity extends ListActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
-        final Intent intent = new Intent(this, DeviceControlActivity.class);
-
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        bluetoothDevices.add(device);
         if (mScanning) {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -177,7 +191,7 @@ public class DeviceScanActivity extends ListActivity {
             }
             mScanning = false;
         }
-        startActivity(intent);
+
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -210,6 +224,7 @@ public class DeviceScanActivity extends ListActivity {
         private ArrayList<BluetoothDevice> mLeDevices;
         private LayoutInflater mInflator;
         private BluetoothDevice device;
+
         public LeDeviceListAdapter() {
             super();
             mLeDevices = new ArrayList<BluetoothDevice>();
@@ -296,6 +311,12 @@ public class DeviceScanActivity extends ListActivity {
                     super.onScanResult(callbackType, result);
                     mLeDeviceListAdapter.addDevice(result.getDevice());
                     mLeDeviceListAdapter.notifyDataSetChanged();
+                }
+                @Override
+                public void onScanFailed(int error){
+                    super.onScanFailed(error);
+                    Log.d("ScanFailed", "errorCode: "+error);
+
                 }
             };
 //    private ScanCallback mLeScanCallback = new ScanCallback() {

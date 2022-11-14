@@ -56,6 +56,7 @@ public class DeviceControlActivity extends AppCompatActivity {
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+    public static final String EXTRAS_DEVICE_INDEX = "index";
     private final int REQUEST_PERMISSION_ACCESS_FINE_LOCATION=1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 2;
 
@@ -63,6 +64,7 @@ public class DeviceControlActivity extends AppCompatActivity {
     private TextView mDataField;
     private Button mOn;
     private Button mOff;
+    private int mDeviceIndex;
     private String mDeviceName;
     private String mDeviceAddress;
     private ExpandableListView mGattServicesList;
@@ -77,26 +79,28 @@ public class DeviceControlActivity extends AppCompatActivity {
 
     private final String TURN_ON = "A";
     private final String TURN_OFF = "B";
+    private List<MyDevices> myDevices;
+    private List<ServiceConnection> serviceConnections = new ArrayList<>();
 
     // Code to manage Service lifecycle.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
-            if (!mBluetoothLeService.initialize()) {
-                Log.e(TAG, "Unable to initialize Bluetooth");
-                finish();
-            }
-            // Automatically connects to the device upon successful start-up initialization.
-            mBluetoothLeService.connect(mDeviceAddress);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            mBluetoothLeService = null;
-        }
-    };
+//    private ServiceConnection mServiceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName componentName, IBinder service) {
+//            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+//            if (!mBluetoothLeService.initialize()) {
+//                Log.e(TAG, "Unable to initialize Bluetooth");
+//                finish();
+//            }
+//            // Automatically connects to the device upon successful start-up initialization.
+//            mBluetoothLeService.connect(mDeviceAddress);
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName componentName) {
+//            mBluetoothLeService = null;
+//        }
+//    };
 
     // Handles various events fired by the Service.
     // ACTION_GATT_CONNECTED: connected to a GATT server.
@@ -108,20 +112,23 @@ public class DeviceControlActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
-                updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
-                updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
-                clearUI();
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Show all the supported services and characteristics on the user interface.
-                displayGattServices(mBluetoothLeService.getSupportedGattServices());
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            for (MyDevices device: myDevices) {
+                BluetoothLeService mBluetoothLeService = device.getBluetoothLeService();
+                if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                    mConnected = true;
+                    updateConnectionState(R.string.connected);
+                    invalidateOptionsMenu();
+                } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                    mConnected = false;
+                    updateConnectionState(R.string.disconnected);
+                    invalidateOptionsMenu();
+                    clearUI();
+                } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                    // Show all the supported services and characteristics on the user interface.
+                    displayGattServices(mBluetoothLeService.getSupportedGattServices());
+                } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                    displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                }
             }
         }
     };
@@ -171,9 +178,23 @@ public class DeviceControlActivity extends AppCompatActivity {
         setContentView(R.layout.gatt_services_characteristics);
         requestPermission();
         final Intent intent = getIntent();
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        Log.d("EXTRAS_DEVICE_INDEX", ""+intent.getIntExtra(EXTRAS_DEVICE_INDEX, 0));
+        mDeviceIndex = intent.getIntExtra(EXTRAS_DEVICE_INDEX, 0);
+        myDevices = new ArrayList<>();
+        for (int i=0;i<mDeviceIndex; i++) {
+            String name = intent.getStringExtra(EXTRAS_DEVICE_NAME+i);
+            String address = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS+i);
+            Log.d("DeviceName:", name);
+            MyDevices myDevice = new MyDevices(name, address);
+            myDevices.add(myDevice);
+            mDeviceName = name;
+            mDeviceAddress = address;
+            ServiceConnection mServiceConnection = initService(myDevice);
+            serviceConnections.add(mServiceConnection);
+            Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
 
+            bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+        }
         // Sets up UI references.
         ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
         mGattServicesList = findViewById(R.id.gatt_services_list);
@@ -184,10 +205,11 @@ public class DeviceControlActivity extends AppCompatActivity {
         mOff = findViewById(R.id.button_off);
 
 
-        getSupportActionBar().setTitle(mDeviceName);
+        getSupportActionBar().setTitle("Sensors Data");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+//        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+//
+//        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
         mOn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,8 +244,10 @@ public class DeviceControlActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection);
-        mBluetoothLeService = null;
+        for(ServiceConnection serviceConnection: serviceConnections) {
+            unbindService(serviceConnection);
+            mBluetoothLeService = null;
+        }
     }
 
     @Override
@@ -285,6 +309,30 @@ public class DeviceControlActivity extends AppCompatActivity {
         if (data != null) {
             mDataField.setText(data);
         }
+    }
+
+    private ServiceConnection initService(MyDevices myDevice){
+        final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder service) {
+                mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+                //updating myDevice object with new bluetoothLeService
+                myDevice.setBluetoothLeService(mBluetoothLeService);
+                if (!mBluetoothLeService.initialize()) {
+                    Log.e(TAG, "Unable to initialize Bluetooth");
+                    finish();
+                }
+                // Automatically connects to the device upon successful start-up initialization.
+                mBluetoothLeService.connect(myDevice.getAddress());
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+                mBluetoothLeService = null;
+            }
+        };
+        return mServiceConnection;
     }
 
     // Demonstrates how to iterate through the supported GATT Services/Characteristics.
