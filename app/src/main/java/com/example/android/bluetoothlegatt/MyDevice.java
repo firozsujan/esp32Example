@@ -1,10 +1,20 @@
 package com.example.android.bluetoothlegatt;
 
-public class MyDevices {
+public class MyDevice {
 
     private String name;
     private String address;
     BluetoothLeService bluetoothLeService;
+    BluetoothLeServiceTwo bluetoothLeServiceTwo;
+
+    public BluetoothLeServiceTwo getBluetoothLeServiceTwo() {
+        return bluetoothLeServiceTwo;
+    }
+
+    public void setBluetoothLeServiceTwo(BluetoothLeServiceTwo bluetoothLeServiceTwo) {
+        this.bluetoothLeServiceTwo = bluetoothLeServiceTwo;
+    }
+
 
     public BluetoothLeService getBluetoothLeService() {
         return bluetoothLeService;
@@ -14,7 +24,7 @@ public class MyDevices {
         this.bluetoothLeService = bluetoothLeService;
     }
 
-    public MyDevices(String name, String address) {
+    public MyDevice(String name, String address) {
         this.name = name;
         this.address = address;
     }

@@ -25,7 +25,6 @@
             android:id="@+id/tv_lat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
             android:text="0.00"
             app:layout_constraintStart_toEndOf="@+id/tv_labellat"
             app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +42,6 @@
             android:id="@+id/tv_lon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:text="@string/default_value_lon"
             app:layout_constraintStart_toEndOf="@+id/tv_labellon"
             app:layout_constraintTop_toBottomOf="@+id/tv_lat" />
@@ -99,38 +97,38 @@
             app:layout_constraintStart_toEndOf="@+id/tv_labelspeed"
             app:layout_constraintTop_toTopOf="@+id/tv_labelspeed" />
 
-        <TextView
-            android:id="@+id/tv_labelsensor"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Sensor:"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sw_gps" />
+<!--        <TextView-->
+<!--            android:id="@+id/tv_labelsensor"-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:text="Sensor:"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/sw_gps" />-->
 
-        <TextView
-            android:id="@+id/tv_sensor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cell Tower + Wifi"
-            app:layout_constraintStart_toEndOf="@+id/tv_labelsensor"
-            app:layout_constraintTop_toTopOf="@+id/tv_labelsensor" />
+<!--        <TextView-->
+<!--            android:id="@+id/tv_sensor"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Cell Tower + Wifi"-->
+<!--            app:layout_constraintStart_toEndOf="@+id/tv_labelsensor"-->
+<!--            app:layout_constraintTop_toTopOf="@+id/tv_labelsensor" />-->
 
-        <TextView
-            android:id="@+id/tv_labelupdates"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:text="Updates:"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sw_locationsupdates" />
+<!--        <TextView-->
+<!--            android:id="@+id/tv_labelupdates"-->
+<!--            android:layout_width="100dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Updates:"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/sw_locationsupdates" />-->
 
-        <TextView
-            android:id="@+id/tv_updates"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Off"
-            app:layout_constraintStart_toEndOf="@+id/tv_labelupdates"
-            app:layout_constraintTop_toTopOf="@+id/tv_labelupdates" />
+<!--        <TextView-->
+<!--            android:id="@+id/tv_updates"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Off"-->
+<!--            app:layout_constraintStart_toEndOf="@+id/tv_labelupdates"-->
+<!--            app:layout_constraintTop_toTopOf="@+id/tv_labelupdates" />-->
 
         <TextView
             android:id="@+id/tv_lbladdress"

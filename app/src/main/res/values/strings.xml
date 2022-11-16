@@ -41,9 +41,10 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="lat">Lat:</string>
+    <string name="lat">Latitude:</string>
     <string name="_0_00">0.00</string>
-    <string name="lon">lon:</string>
+    <string name="lon">Longitude:</string>
     <string name="default_value_lon">0.00</string>
     <string name="menu_gps">GPS</string>
+    <string name="label_device_name">Device Name:</string>
 </resources>

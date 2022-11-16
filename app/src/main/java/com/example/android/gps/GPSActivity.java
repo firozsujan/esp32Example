@@ -55,7 +55,7 @@ public class GPSActivity extends AppCompatActivity {
         binding.tvSpeed.setText("5");
 
         binding.tvAddress.setText("7");
-        binding.tvUpdates.setText("8");
+//        binding.tvUpdates.setText("8");
 
         int locationFastestInterval = 3000;
         int locationMaxWaitTime = 100;
@@ -82,10 +82,10 @@ public class GPSActivity extends AppCompatActivity {
         binding.swGps.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
-                binding.tvSensor.setText("Using GPS sensors");
+//                binding.tvSensor.setText("Using GPS sensors");
             } else {
                 locationRequest.setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY);
-                binding.tvSensor.setText("Using Towers + WIFI");
+//                binding.tvSensor.setText("Using Towers + WIFI");
             }
             showToast("Turn on gps!");
         });
@@ -125,7 +125,7 @@ public class GPSActivity extends AppCompatActivity {
 
     private void stopLocationUpdates() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-        binding.tvUpdates.setText("Location is being tracked");
+//        binding.tvUpdates.setText("Location is being tracked");
         binding.tvLat.setText("Location is being tracked");
         binding.tvLon.setText("Location is being tracked");
         binding.tvAltitude.setText("Location is being tracked");
@@ -145,7 +145,7 @@ public class GPSActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        binding.tvUpdates.setText("Location is not being tracked");
+//        binding.tvUpdates.setText("Location is not being tracked");
         fusedLocationProviderClient.requestLocationUpdates(locationRequest,
                 locationCallback,
                 Looper.getMainLooper());
