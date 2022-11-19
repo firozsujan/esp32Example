@@ -29,7 +29,7 @@
 
     <!-- Menu items -->
     <string name="menu_connect">Connect</string>
-    <string name="menu_disconnect">Disconnect</string>
+    <string name="menu_connecting">Connecting...</string>
     <string name="menu_scan">Scan</string>
     <string name="menu_stop">Stop</string>
     <string name="title_activity_gpsactivity">GPSActivity</string>

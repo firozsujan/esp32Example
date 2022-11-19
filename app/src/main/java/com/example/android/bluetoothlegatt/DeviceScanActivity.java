@@ -417,7 +417,6 @@ public class DeviceScanActivity extends AppCompatActivity {
 //        }
 //    };
     // Device scan callback.
-    @SuppressLint("NewApi")
     private ScanCallback mScanCallback =
             new ScanCallback() {
                 @Override

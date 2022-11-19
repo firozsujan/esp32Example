@@ -168,7 +168,7 @@ public class DeviceControlActivity extends AppCompatActivity {
             binding.buttonOff.setOnClickListener(v -> device1.getBluetoothLeService().writeCharacteristic(TURN_OFF.getBytes()));
             binding.buttonConnect.setOnClickListener(v -> {
                 if (!mConnected) {
-                    binding.buttonConnect.setText(R.string.menu_disconnect);
+                    binding.buttonConnect.setText(R.string.menu_connecting);
                     device1.getBluetoothLeService().connect(device1.getAddress());
                 } else {
                     binding.buttonConnect.setText(R.string.menu_connect);
@@ -186,7 +186,7 @@ public class DeviceControlActivity extends AppCompatActivity {
                 binding.buttonOff2.setOnClickListener(v -> device2.getBluetoothLeServiceTwo().writeCharacteristic(TURN_OFF.getBytes()));
                 binding.buttonConnect2.setOnClickListener(v -> {
                     if (!mConnected2) {
-                        binding.buttonConnect2.setText(R.string.menu_disconnect);
+                        binding.buttonConnect2.setText(R.string.menu_connecting);
                         device2.getBluetoothLeServiceTwo().connect(device2.getAddress());
                     } else {
                         binding.buttonConnect2.setText(R.string.menu_connect);
@@ -450,26 +450,33 @@ public class DeviceControlActivity extends AppCompatActivity {
         });
     }
 
-    String testData1 = "A1:ax,ay,az;G1:gx,gy,gz,t;F1:fsr_reading1,fsr_reading2,fsr_reading3,fsr_reading4,fsr_reading5,fsr_reading6,fsr_reading7;sadf";
-    String testData2 = "A2:ax,ay,az;G2:gx,gy,gz,t;F2:fsr_reading1,fsr_reading2,fsr_reading3,fsr_reading4,fsr_reading5,fsr_reading6,fsr_reading7;asdf";
+//    String testData1 = "A1:ax,ay,az;G1:gx,gy,gz,t;F1:fsr_reading1,fsr_reading2,fsr_reading3,fsr_reading4,fsr_reading5,fsr_reading6,fsr_reading7;sadf";
+//    String testData2 = "A2:ax,ay,az;G2:gx,gy,gz,t;F2:fsr_reading1,fsr_reading2,fsr_reading3,fsr_reading4,fsr_reading5,fsr_reading6,fsr_reading7;asdf";
 
     private void displayData(String rawData) {
-        String[] arr = testData1.split(";");
-        String[] dataArray = Arrays.copyOf(arr, arr.length - 1);
+        String[] dataArray = rawData.split(";");
+//        String[] dataArray = Arrays.copyOf(arr, arr.length - 1);
 
         String processedData = "";
         for (String s : dataArray) {
-            String[] firstlevel = s.split(":");
-            if (firstlevel[0].contains("A1")) {
-                String[] data = firstlevel[1].split(",");
-                processedData = processedData + "Accelerometer Data:\nX: " + data[0] + " Y: " + data[1] + " Z: " + data[2] + "\n";
-            } else if (firstlevel[0].contains("G1")) {
-                String[] data = firstlevel[1].split(",");
-                processedData = processedData + "Gyroscope Data:\nX: " + data[0] + " Y: " + data[1] + " Z: " + data[2] + "\n";
-            } else if (firstlevel[0].contains("F1")) {
-                String[] data = firstlevel[1].split(",");
-                processedData = processedData + "FSR Data:\nF1: " + data[0] + " F2: " + data[1] + " F3: " + data[2] + "\n"
-                        + " F4: " + data[3] + " F5: " + data[4] + " F6: " + data[5] + " F7: " + data[6] + "\n";
+            String[] sensorData = s.split(":");
+            if (sensorData[0].contains("A1") || sensorData[0].contains("A2")) {
+                String[] data = sensorData[1].split(",");
+                processedData = processedData + "Accelerometer Data:\nX: " + data[0] + " Y: " + data[1] + "\nZ: " + data[2] + "\n";
+            } else if (sensorData[0].contains("G1") || sensorData[0].contains("G2")) {
+                String[] data = sensorData[1].split(",");
+                processedData = processedData + "Gyroscope Data:\nX: " + data[0] + " Y: " + data[1] + "\nZ: " + data[2] + " T: " + data[3] + "\n";
+            } else if (sensorData[0].contains("F1") || sensorData[0].contains("F2")) {
+                String[] data = sensorData[1].split(",");
+                processedData = processedData + "FSR Data:\n";
+                int i=1;
+                for (String f : data) {
+                    processedData = processedData + " F"+i+": " + f;
+                    i++;
+                    if (i%2==0)
+                        processedData = processedData + "\n";
+                }
+                processedData = processedData + "\n";
             }
             processedData = processedData + "\n";
         }
@@ -479,22 +486,28 @@ public class DeviceControlActivity extends AppCompatActivity {
     }
 
     private void displayData2(String rawData) {
-        String[] arr = testData1.split(";");
-        String[] dataArray = Arrays.copyOf(arr, arr.length - 1);
+        String[] dataArray = rawData.split(";");
 
         String processedData = "";
         for (String s : dataArray) {
-            String[] firstlevel = s.split(":");
-            if (firstlevel[0].contains("A1")) {
-                String[] data = firstlevel[1].split(",");
-                processedData = processedData + "Accelerometer Data:\nX: " + data[0] + " Y: " + data[1] + " Z: " + data[2] + "\n";
-            } else if (firstlevel[0].contains("G1")) {
-                String[] data = firstlevel[1].split(",");
-                processedData = processedData + "Gyroscope Data:\nX: " + data[0] + " Y: " + data[1] + " Z: " + data[2] + "\n";
-            } else if (firstlevel[0].contains("F1")) {
-                String[] data = firstlevel[1].split(",");
-                processedData = processedData + "FSR Data:\nF1: " + data[0] + " F2: " + data[1] + " F3: " + data[2] + "\n"
-                        + " F4: " + data[3] + " F5: " + data[4] + " F6: " + data[5] + " F7: " + data[6] + "\n";
+            String[] sensorData = s.split(":");
+            if (sensorData[0].contains("A1") || sensorData[0].contains("A2")) {
+                String[] data = sensorData[1].split(",");
+                processedData = processedData + "Accelerometer Data:\nX: " + data[0] + " Y: " + data[1] + "\nZ: " + data[2] + "\n";
+            } else if (sensorData[0].contains("G1") || sensorData[0].contains("G2")) {
+                String[] data = sensorData[1].split(",");
+                processedData = processedData + "Gyroscope Data:\nX: " + data[0] + " Y: " + data[1] + "\nZ: " + data[2] + " T: " + data[3] + "\n";
+            } else if (sensorData[0].contains("F1") || sensorData[0].contains("F2")) {
+                String[] data = sensorData[1].split(",");
+                processedData = processedData + "FSR Data:\n";
+                int i=1;
+                for (String f : data) {
+                    processedData = processedData + " F"+i+": " + f;
+                    i++;
+                    if (i%2==0)
+                        processedData = processedData + "\n";
+                }
+                processedData = processedData + "\n";
             }
             processedData = processedData + "\n";
         }
