@@ -8,8 +8,8 @@
 
     <ListView
         android:id="@+id/lv_device"
-        android:layout_width="421dp"
-        android:layout_height="662dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:choiceMode="multipleChoice"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,28 +22,35 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="4dp"
         android:text="Scan"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btn_connect"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lv_device" />
+        app:layout_constraintTop_toBottomOf="@+id/lv_device"
+        app:layout_constraintVertical_bias="0.935" />
 
     <Button
         android:id="@+id/btn_connect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="172dp"
         android:layout_marginTop="4dp"
         android:text="Connect"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.566"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lv_device" />
+        app:layout_constraintTop_toBottomOf="@+id/lv_device"
+        app:layout_constraintVertical_bias="0.935" />
 
     <Button
         android:id="@+id/btn_gps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="26dp"
         android:layout_marginTop="4dp"
         android:text="GPS Data"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btn_connect"
-        app:layout_constraintTop_toBottomOf="@+id/lv_device" />
+        app:layout_constraintTop_toBottomOf="@+id/lv_device"
+        app:layout_constraintVertical_bias="0.935" />
 </androidx.constraintlayout.widget.ConstraintLayout>

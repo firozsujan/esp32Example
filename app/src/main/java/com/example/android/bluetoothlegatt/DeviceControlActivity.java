@@ -111,7 +111,8 @@ public class DeviceControlActivity extends AppCompatActivity {
 //        setContentView(R.layout.activity_device_control);
         binding = ActivityDeviceControlBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
+        DEVICE_ONE = "";
+        DEVICE_TWO = "";
         requestPermission();
         final Intent intent = getIntent();
         Log.d("EXTRAS_DEVICE_INDEX", "" + intent.getIntExtra(EXTRAS_DEVICE_INDEX, 0));
@@ -164,15 +165,16 @@ public class DeviceControlActivity extends AppCompatActivity {
 //            mGattServicesList = findViewById(R.id.gatt_services_list);
 //            binding.gattServicesList.setOnChildClickListener(servicesListClickListner);
 
-            binding.buttonOn.setOnClickListener(v -> device1.getBluetoothLeService().writeCharacteristic(TURN_ON.getBytes()));
-            binding.buttonOff.setOnClickListener(v -> device1.getBluetoothLeService().writeCharacteristic(TURN_OFF.getBytes()));
+            binding.buttonOn.setOnClickListener(v -> {if (device1.getBluetoothLeService() != null) device1.getBluetoothLeService().writeCharacteristic(TURN_ON.getBytes());});
+            binding.buttonOff.setOnClickListener(v -> {if (device1.getBluetoothLeService() != null) device1.getBluetoothLeService().writeCharacteristic(TURN_OFF.getBytes());});
             binding.buttonConnect.setOnClickListener(v -> {
-                if (!mConnected) {
+                if (!mConnected && device1.getBluetoothLeService() != null) {
                     binding.buttonConnect.setText(R.string.menu_connecting);
                     device1.getBluetoothLeService().connect(device1.getAddress());
                 } else {
                     binding.buttonConnect.setText(R.string.menu_connect);
-                    device1.getBluetoothLeService().disconnect();
+                    if (device1.getBluetoothLeService() != null)
+                        device1.getBluetoothLeService().disconnect();
                 }
             });
             if (myDevices.size() > 1) {
@@ -182,15 +184,16 @@ public class DeviceControlActivity extends AppCompatActivity {
 //            mGattServicesList = findViewById(R.id.gatt_services_list);
 //                binding.gattServicesList2.setOnChildClickListener(servicesListClickListner2);
 
-                binding.buttonOn2.setOnClickListener(v -> device2.getBluetoothLeServiceTwo().writeCharacteristic(TURN_ON.getBytes()));
-                binding.buttonOff2.setOnClickListener(v -> device2.getBluetoothLeServiceTwo().writeCharacteristic(TURN_OFF.getBytes()));
+                binding.buttonOn2.setOnClickListener(v -> {if (device2.getBluetoothLeServiceTwo() != null) device2.getBluetoothLeServiceTwo().writeCharacteristic(TURN_ON.getBytes());});
+                binding.buttonOff2.setOnClickListener(v -> {if (device2.getBluetoothLeServiceTwo() != null) device2.getBluetoothLeServiceTwo().writeCharacteristic(TURN_OFF.getBytes());});
                 binding.buttonConnect2.setOnClickListener(v -> {
-                    if (!mConnected2) {
+                    if (!mConnected2 && device2.getBluetoothLeServiceTwo() != null) {
                         binding.buttonConnect2.setText(R.string.menu_connecting);
                         device2.getBluetoothLeServiceTwo().connect(device2.getAddress());
                     } else {
                         binding.buttonConnect2.setText(R.string.menu_connect);
-                        device2.getBluetoothLeServiceTwo().disconnect();
+                        if(device2.getBluetoothLeServiceTwo() != null)
+                            device2.getBluetoothLeServiceTwo().disconnect();
                     }
                 });
             }
@@ -221,6 +224,7 @@ public class DeviceControlActivity extends AppCompatActivity {
 //        for (MyDevice device : myDevices) {
         if (mGattUpdateReceiver != null)
             unregisterReceiver(mGattUpdateReceiver);
+
 //        }
     }
 
@@ -232,42 +236,16 @@ public class DeviceControlActivity extends AppCompatActivity {
             for (MyDevice device : myDevices) {
                 device.setBluetoothLeService(null);
                 device.setBluetoothLeServiceTwo(null);
+                DEVICE_ONE = "";
+                DEVICE_TWO = "";
             }
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.gatt_services, menu);
-//        if (mConnected) {
-//            menu.findItem(R.id.menu_connect).setVisible(false);
-//            menu.findItem(R.id.menu_disconnect).setVisible(true);
-//        } else {
-//            menu.findItem(R.id.menu_connect).setVisible(true);
-//            menu.findItem(R.id.menu_disconnect).setVisible(false);
-//        }
-//        return true;
-//    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-//            case R.id.menu_connect:
-//                if(DEVICE_ONE != "")
-//                    myDevices.get(0).getBluetoothLeService().connect(myDevices.get(0).getAddress());
-//                return true;
-//            case R.id.menu_disconnect:
-//                if(DEVICE_ONE != "")
-//                    myDevices.get(0).getBluetoothLeService().disconnect();
-//                return true;
-//            case R.id.menu_connect2:
-//                if(DEVICE_TWO != "")
-//                    myDevices.get(1).getBluetoothLeService().connect(myDevices.get(1).getAddress());
-//                return true;
-//            case R.id.menu_disconnect2:
-//                if(DEVICE_TWO != "")
-//                    myDevices.get(1).getBluetoothLeService().disconnect();
-//                return true;
+
             case android.R.id.home:
                 onBackPressed();
                 return true;
@@ -301,8 +279,8 @@ public class DeviceControlActivity extends AppCompatActivity {
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
-            final String deviceAddress = intent.getStringExtra(BluetoothLeService.DEVICE_ADDRESS);
+            String action = intent.getAction();
+            String deviceAddress = intent.getStringExtra(BluetoothLeService.DEVICE_ADDRESS);
             for (MyDevice device : myDevices) {
                 BluetoothLeService mBluetoothLeService = device.getBluetoothLeService();
                 BluetoothLeServiceTwo mBluetoothLeServiceTwo = device.getBluetoothLeServiceTwo();

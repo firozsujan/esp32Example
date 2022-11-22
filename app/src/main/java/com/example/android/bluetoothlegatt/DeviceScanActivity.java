@@ -43,11 +43,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuItemCompat;
 
 import com.example.android.bluetoothlegatt.databinding.ActivityDeviceScanBinding;
 import com.example.android.gps.GPSActivity;
+import com.google.android.gms.location.LocationServices;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,7 +109,28 @@ public class DeviceScanActivity extends AppCompatActivity {
             finish();
         }
 
+        // Initializes list view adapter.
+        mLeDeviceListAdapter = new LeDeviceListAdapter();
+
+        bluetoothDevices = new ArrayList<>();
+
+        ActivityResultLauncher<Intent> bluetoothActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                        finish();
+                    }
+                });
+
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
+            bluetoothActivityResultLauncher.launch(enableBtIntent);
+        }
+
         //start scanning bluetooth
+        scanLeDevice(true);
+
         binding.btnScan.setOnClickListener(v -> {
             if(!mScanning) {
                 mLeDeviceListAdapter.clear();
@@ -142,10 +168,6 @@ public class DeviceScanActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Initializes list view adapter.
-        mLeDeviceListAdapter = new LeDeviceListAdapter();
-
-        bluetoothDevices = new ArrayList<>();
         binding.lvDevice.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 //        binding.lvDevice.setItemsCanFocus(false);
         binding.lvDevice.setAdapter(mLeDeviceListAdapter);
@@ -238,21 +260,23 @@ public class DeviceScanActivity extends AppCompatActivity {
         scanLeDevice(true);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // User chose not to enable Bluetooth.
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            finish();
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        // User chose not to enable Bluetooth.
+//        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+//            finish();
+//            return;
+//        }
+//        super.onActivityResult(requestCode, resultCode, data);
+//    }
 
     @Override
     protected void onPause() {
         super.onPause();
         scanLeDevice(false);
-        mLeDeviceListAdapter.clear();
+        if(mLeDeviceListAdapter != null)
+            mLeDeviceListAdapter.clear();
+        bluetoothDevices.clear();
     }
     @Override
     public void onRequestPermissionsResult(
@@ -261,9 +285,10 @@ public class DeviceScanActivity extends AppCompatActivity {
             int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case REQUEST_PERMISSION_ACCESS_FINE_LOCATION:
+            case PERMISSION_REQUEST_COARSE_LOCATION:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
                     Toast.makeText(getApplicationContext(), "Permission Granted!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission Denied!", Toast.LENGTH_SHORT).show();
@@ -320,12 +345,16 @@ public class DeviceScanActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
     private void requestPermission() {
+        LocationServices.getFusedLocationProviderClient(DeviceScanActivity.this);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // Android M Permission check.
             if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED) {
                 requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
                         PERMISSION_REQUEST_COARSE_LOCATION);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
             }
         }
     }

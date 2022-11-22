@@ -82,12 +82,13 @@ public class GPSActivity extends AppCompatActivity {
         binding.swGps.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
+
 //                binding.tvSensor.setText("Using GPS sensors");
             } else {
                 locationRequest.setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY);
 //                binding.tvSensor.setText("Using Towers + WIFI");
             }
-            showToast("Turn on gps!");
+//            showToast("Turn on gps!");
         });
         binding.swLocationsupdates.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked){
@@ -95,7 +96,7 @@ public class GPSActivity extends AppCompatActivity {
             } else {
                 stopLocationUpdates();
             }
-            showToast("Location updated!");
+//            showToast("Location updated!");
         });
 
         updateGPS();

@@ -31,6 +31,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -54,6 +55,9 @@ public class BluetoothLeService extends Service {
     private BluetoothGatt mBluetoothGatt;
     public BluetoothGattCharacteristic mNotifyCharacteristic;
     private int mConnectionState = STATE_DISCONNECTED;
+    private static boolean gatt_status_133 = false;
+
+    final Handler handler = new Handler();
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -91,6 +95,9 @@ public class BluetoothLeService extends Service {
                         mBluetoothGatt.discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                if(status == 133) {
+                    gatt_status_133=true;
+                }
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
@@ -231,17 +238,17 @@ public class BluetoothLeService extends Service {
         }
 
         // Previously connected device.  Try to reconnect.
-        if (address.equals(mBluetoothDeviceAddress)
-                && mBluetoothGatt != null) {
-            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-            mBluetoothGatt.disconnect();
+//        if (address.equals(mBluetoothDeviceAddress)
+//                && mBluetoothGatt != null) {
+//            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
+//            mBluetoothGatt.disconnect();
 //            if (mBluetoothGatt.connect()) {
 //                mConnectionState = STATE_CONNECTING;
 //                return true;
 //            } else {
 //                return false;
 //            }
-        }
+//        }
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
@@ -250,10 +257,19 @@ public class BluetoothLeService extends Service {
         }
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+        mBluetoothGatt = device.connectGatt(this, false, mGattCallback, BluetoothDevice.TRANSPORT_LE);
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
+        handler.postDelayed(() -> {
+            if(gatt_status_133)
+            {
+                Log.d(TAG, "Catch issue");
+                connect(mBluetoothDeviceAddress);
+                gatt_status_133=false;
+            }
+        }, 4000);
+
         return true;
     }
 
@@ -270,6 +286,7 @@ public class BluetoothLeService extends Service {
         }
 
         mBluetoothGatt.disconnect();
+        mBluetoothGatt.close();
     }
 
     /**
@@ -328,9 +345,10 @@ public class BluetoothLeService extends Service {
     }
 
     public void writeCharacteristic(byte[] data) {
-        mNotifyCharacteristic.setValue(data);
-        if (mBluetoothGatt != null)
+        if (mNotifyCharacteristic != null && mBluetoothGatt != null) {
+            mNotifyCharacteristic.setValue(data);
             mBluetoothGatt.writeCharacteristic(mNotifyCharacteristic);
+        }
     }
 
     /**
