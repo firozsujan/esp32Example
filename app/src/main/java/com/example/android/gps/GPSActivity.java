@@ -54,7 +54,7 @@ public class GPSActivity extends AppCompatActivity {
         binding.tvAccuracy.setText("4");
         binding.tvSpeed.setText("5");
 
-        binding.tvAddress.setText("7");
+        binding.tvAddress.setText("6");
 //        binding.tvUpdates.setText("8");
 
         int locationFastestInterval = 3000;
@@ -81,12 +81,21 @@ public class GPSActivity extends AppCompatActivity {
 
         binding.swGps.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
+//                locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
 
+                locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, locationInterval)
+                        .setWaitForAccurateLocation(false)
+                        .setMinUpdateIntervalMillis(locationFastestInterval)
+                        .setMaxUpdateDelayMillis(locationMaxWaitTime)
+                        .build();
 //                binding.tvSensor.setText("Using GPS sensors");
             } else {
-                locationRequest.setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY);
-//                binding.tvSensor.setText("Using Towers + WIFI");
+//                locationRequest.setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY);
+                locationRequest = new LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, locationInterval)
+                .setWaitForAccurateLocation(false)
+                .setMinUpdateIntervalMillis(locationFastestInterval)
+                .setMaxUpdateDelayMillis(locationMaxWaitTime)
+                .build();
             }
 //            showToast("Turn on gps!");
         });
@@ -136,16 +145,6 @@ public class GPSActivity extends AppCompatActivity {
     }
 
     private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
 //        binding.tvUpdates.setText("Location is not being tracked");
         fusedLocationProviderClient.requestLocationUpdates(locationRequest,
                 locationCallback,

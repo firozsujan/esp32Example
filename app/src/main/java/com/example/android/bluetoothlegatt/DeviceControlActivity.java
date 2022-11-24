@@ -177,6 +177,15 @@ public class DeviceControlActivity extends AppCompatActivity {
                         device1.getBluetoothLeService().disconnect();
                 }
             });
+            binding.btnClose.setOnClickListener(v -> {
+                if (device1.getBluetoothLeService() != null)
+                    device1.getBluetoothLeService().disconnect();
+                if(myDevices.size() > 1) {
+                    if (myDevices.get(1).getBluetoothLeServiceTwo() != null)
+                        myDevices.get(1).getBluetoothLeServiceTwo().disconnect();
+                }
+                finish();
+            });
             if (myDevices.size() > 1) {
                 MyDevice device2 = myDevices.get(1);
                 binding.deviceName2.setText(device2.getName());

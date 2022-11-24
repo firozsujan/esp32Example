@@ -69,6 +69,7 @@ public class DeviceScanActivity extends AppCompatActivity {
     private Handler mHandler;
     List<BluetoothDevice> bluetoothDevices;
 
+    private boolean isRestarted;
 
     private static final int REQUEST_ENABLE_BT = 1;
     // Stops scanning after 10 seconds.
@@ -252,23 +253,12 @@ public class DeviceScanActivity extends AppCompatActivity {
         // fire an intent to display a dialog asking the user to grant permission to enable it.
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-
 //        setListAdapter(mLeDeviceListAdapter);
         scanLeDevice(true);
     }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        // User chose not to enable Bluetooth.
-//        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-//            finish();
-//            return;
-//        }
-//        super.onActivityResult(requestCode, resultCode, data);
-//    }
 
     @Override
     protected void onPause() {
@@ -288,35 +278,23 @@ public class DeviceScanActivity extends AppCompatActivity {
             case PERMISSION_REQUEST_COARSE_LOCATION:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+//                    LocationServices.getFusedLocationProviderClient(DeviceScanActivity.this);
+                    Toast.makeText(getApplicationContext(), "Permission Granted!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission Denied!", Toast.LENGTH_SHORT).show();
+                }
+            case REQUEST_PERMISSION_ACCESS_FINE_LOCATION:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //start scanning bluetooth
+                    scanLeDevice(true);
+//                    LocationServices.getFusedLocationProviderClient(DeviceScanActivity.this);
                     Toast.makeText(getApplicationContext(), "Permission Granted!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Permission Denied!", Toast.LENGTH_SHORT).show();
                 }
         }
     }
-//    @Override
-//    protected void onListItemClick(ListView l, View v, int position, long id) {
-//        super.onListItemClick(l, v, position, id);
-//        CheckBox checkbox = (CheckBox) findViewById(R.id.checkbox);
-//        if(checkbox.isChecked()) {
-//            final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
-//            if (device == null) return;
-//            bluetoothDevices.add(device);
-//            if (mScanning) {
-//
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                    bluetoothLeScanner.stopScan(mScanCallback);
-//                }
-//                mScanning = false;
-//            }
-//        } else{
-//            final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
-//            if (device == null) return;
-//            bluetoothDevices.remove(device);
-//        }
-//
-//    }
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
@@ -345,7 +323,7 @@ public class DeviceScanActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
     private void requestPermission() {
-        LocationServices.getFusedLocationProviderClient(DeviceScanActivity.this);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // Android M Permission check.
             if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -354,7 +332,7 @@ public class DeviceScanActivity extends AppCompatActivity {
                         PERMISSION_REQUEST_COARSE_LOCATION);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_PERMISSION_ACCESS_FINE_LOCATION);
             }
         }
     }
@@ -463,22 +441,6 @@ public class DeviceScanActivity extends AppCompatActivity {
 
                 }
             };
-//    private ScanCallback mLeScanCallback = new ScanCallback() {
-//        @Override
-//        public void onScanResult(int callbackType, ScanResult result) {
-//            super.onScanResult(callbackType, result);
-//        }
-//
-//        @Override
-//        public void onBatchScanResults(List<ScanResult> results) {
-//            super.onBatchScanResults(results);
-//        }
-//
-//        @Override
-//        public void onScanFailed(int errorCode) {
-//            super.onScanFailed(errorCode);
-//        }
-//    };
 
     static class ViewHolder {
         TextView deviceName;
